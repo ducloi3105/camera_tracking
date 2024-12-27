@@ -49,7 +49,7 @@ class ApiGenerator(object):
 
             root_path = router_module.__name__.split('.')
             root_dir = os.path.dirname(router_module.__file__)
-            if sys.platform == 'linux':
+            if sys.platform in ['linux', 'darwin']:
                 dir_separator = '/'
             else:
                 dir_separator = '\\'
