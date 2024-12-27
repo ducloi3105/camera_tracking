@@ -12,6 +12,7 @@ else:
     data = dict()
 
 ENVIRONMENT = data.get('ENVIRONMENT', 'local')
+DEBUG = data.get('DEBUG', False)
 
 SECRET_KEY = data.get('SECRET_KEY', 'secret_key')
 
@@ -31,6 +32,11 @@ DCERNO_CONFIG = data.get(
     'DCERNO_CONFIG', dict(
         host='192.168.0.20',
         port=5011
+    )
+)
+VHD_CONFIG = data.get(
+    'VHD_CONFIG', dict(
+        uri='http://192.168.0.88'
     )
 )
 

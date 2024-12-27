@@ -16,4 +16,4 @@ generator = ApiGenerator(
     middlewares=[LoggingMiddleware],
 )
 
-app = generator.run('Storage')
+app = generator.run('DcernoVHD')
