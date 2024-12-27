@@ -11,7 +11,7 @@ import json
 config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_config.json')
 
 
-class MicrophonePresetLogicHandler(RouteLogicHandler):
+class MicrophoneCallLogicHandler(RouteLogicHandler):
     def run(self, uid):
         client = DcernoClient(
             host=DCERNO_CONFIG['host'],
@@ -21,28 +21,19 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
         if not data:
             raise BadRequestParams(message='microphone not found')
 
+        micros = self.read()
+        position = micros.get(uid)
+        if not position:
+            raise BadRequestParams(message='Microphone not set preset')
+
         vhd_client = VHDClient(
             uri=VHD_CONFIG['uri']
         )
-        micros = self.read()
-        if micros:
-            micros = {}
 
-        if uid in micros:
-            next_number = micros[uid]
-        else:
-            next_number = self.find_next_number(micros)
-
-        micros[uid] = next_number
         data = vhd_client.call(
-            action='posset',
-            position=str(next_number),
+            action='poscall',
+            position=position,
         )
-        if 'Success' not in data:
-            raise BadRequestParams(message='Cannot Preset Camera')
-
-        self.write(data)
-
         return data
 
     @staticmethod
