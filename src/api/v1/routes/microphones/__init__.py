@@ -1,10 +1,10 @@
 from src.bases.api.routes import Route
-from .logic_handlers import HealthCheckLogicHandler
+from .logic_handlers import MicrophoneLogicHandler
 
 
-class HealthCheck(Route):
+class MicrophoneRoute(Route):
     auth = False
-    path = "/health-check"
+    path = "/microphones"
     method = "get"
 
-    logic_handler_class = HealthCheckLogicHandler
+    logic_handler_class = MicrophoneLogicHandler

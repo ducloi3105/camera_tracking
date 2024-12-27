@@ -27,6 +27,13 @@ REDIS = data.get('REDIS', dict(
     port=6379,
 ))
 
+DCERNO_CONFIG = data.get(
+    'DCERNO_CONFIG', dict(
+        host='192.168.0.20',
+        port=5011
+    )
+)
+
 
 class CeleryConfig(object):
     env = ENVIRONMENT
