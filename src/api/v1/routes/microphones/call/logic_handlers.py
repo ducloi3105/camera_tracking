@@ -27,12 +27,13 @@ class MicrophoneCallLogicHandler(RouteLogicHandler):
             raise BadRequestParams(message='Microphone not set preset')
 
         vhd_client = VHDClient(
-            uri=VHD_CONFIG['uri']
+            uri=VHD_CONFIG['uri'],
+            logger=self.logger
         )
 
         data = vhd_client.call(
             action='poscall',
-            position=position,
+            position=str(position),
         )
         return data
 

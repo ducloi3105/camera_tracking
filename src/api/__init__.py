@@ -9,7 +9,7 @@ from . import v1
 
 
 generator = ApiGenerator(
-    mongo_config=MONGO_URI,
+    # mongo_config=MONGO_URI,
     router_modules=[v1],
     redis_config=REDIS,
     logger=logging.root,

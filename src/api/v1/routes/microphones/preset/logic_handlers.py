@@ -3,12 +3,14 @@ from src.clients.dcerno import DcernoClient
 from src.clients.vhd import VHDClient
 from src.bases.error.api import BadRequestParams
 from config import DCERNO_CONFIG, VHD_CONFIG
-from src.common.constants import TMP_DIR
 from pathlib import Path
 import os
 import json
 
 config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_config.json')
+if not os.path.exists(config_path):
+    with open(config_path, 'w') as f:
+        json.dump({}, f)
 
 
 class MicrophonePresetLogicHandler(RouteLogicHandler):
@@ -22,7 +24,8 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             raise BadRequestParams(message='microphone not found')
 
         vhd_client = VHDClient(
-            uri=VHD_CONFIG['uri']
+            uri=VHD_CONFIG['uri'],
+            logger=self.logger
         )
         micros = self.read()
         if micros:
@@ -38,12 +41,12 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             action='posset',
             position=str(next_number),
         )
-        if 'Success' not in data:
+        if not data or data['Response']['Result'] != 'Success':
             raise BadRequestParams(message='Cannot Preset Camera')
 
-        self.write(data)
+        self.write(micros)
 
-        return data
+        return dict(success=True)
 
     @staticmethod
     def read():

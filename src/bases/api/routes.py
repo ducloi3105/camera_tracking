@@ -23,7 +23,8 @@ class RouteLogicHandler(object):
         self.request = request
         self.redis = redis
         self.session = session
-        self.mongodb = mongo.get_database()
+        if mongo:
+            self.mongodb = mongo.get_database()
         self.accessor = accessor
         self.accesses = accesses
         self.access_token = access_token

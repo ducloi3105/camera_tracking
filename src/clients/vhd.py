@@ -4,9 +4,11 @@ from src.bases.error.client import ClientError
 
 
 class VHDClient(Client):
-    def __init__(self, uri):
+    def __init__(self, uri, logger):
         self.uri = uri
-        super().__init__()
+        self.logger = logger
+
+        super().__init__(logger=logger)
 
     def call(self, action, position=None, zoom=None):
         params = ['ptzcmd', action]

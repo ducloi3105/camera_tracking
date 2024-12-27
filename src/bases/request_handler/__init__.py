@@ -61,35 +61,33 @@ class RequestHandler(object):
                 )
             )
 
-        if self.logger and self.trace_id:
-            log_data(
-                mode='info',
-                logger=self.logger,
-                kwargs=dict(
-                    asctime=get_now().isoformat(),
-                    trace_id=self.trace_id,
-                    client=self.__class__.__name__,
-                    method=method,
-                    url=url,
-                    payload=kwargs
-                )
+        log_data(
+            mode='info',
+            logger=self.logger,
+            kwargs=dict(
+                asctime=get_now().isoformat(),
+                trace_id=self.trace_id,
+                client=self.__class__.__name__,
+                method=method,
+                url=url,
+                payload=kwargs
             )
+        )
         response = method_handler(url=url,
                                   timeout=timeout,
                                   **kwargs)
-        if self.logger and self.trace_id:
-            log_data(
-                mode='info',
-                logger=self.logger,
-                kwargs=dict(
-                    asctime=get_now().isoformat(),
-                    trace_id=self.trace_id,
-                    client=self.__class__.__name__,
-                    method=method,
-                    url=url,
-                    response=response.text
-                )
+        log_data(
+            mode='info',
+            logger=self.logger,
+            kwargs=dict(
+                asctime=get_now().isoformat(),
+                trace_id=self.trace_id,
+                client=self.__class__.__name__,
+                method=method,
+                url=url,
+                response=response.text
             )
+        )
         return response
 
     def set_trace_id(self, value: str):
