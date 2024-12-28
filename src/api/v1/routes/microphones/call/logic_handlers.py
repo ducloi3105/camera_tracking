@@ -1,9 +1,9 @@
 from src.bases.api.routes import RouteLogicHandler
 from src.clients.dcerno import DcernoClient
 from src.clients.vhd import VHDClient
-from src.bases.error.api import BadRequestParams
+from src.bases.error.api import BadRequestParams, ServerError
+from src.bases.error.client import ClientError
 from config import DCERNO_CONFIG, VHD_CONFIG
-from src.common.constants import TMP_DIR
 from pathlib import Path
 import os
 import json
@@ -13,13 +13,18 @@ config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_config.json')
 
 class MicrophoneCallLogicHandler(RouteLogicHandler):
     def run(self, uid: str):
-        client = DcernoClient(
-            host=DCERNO_CONFIG['host'],
-            port=DCERNO_CONFIG['port'],
-            timeout=5
-        )
-        data = client.get_microphone_status(uid)
-        if not data:
+        try:
+            client = DcernoClient(
+                host=DCERNO_CONFIG['host'],
+                port=DCERNO_CONFIG['port'],
+                timeout=5
+            )
+            micro = client.get_microphone_status(uid)
+            client.socket.close()
+        except ClientError as e:
+            raise ServerError(message=e.message)
+
+        if not micro:
             raise BadRequestParams(message='microphone not found')
 
         micros = self.read()
@@ -31,11 +36,13 @@ class MicrophoneCallLogicHandler(RouteLogicHandler):
             uri=VHD_CONFIG['uri'],
             logger=self.logger
         )
-
-        data = vhd_client.call(
-            action='poscall',
-            position=str(position),
-        )
+        try:
+            data = vhd_client.call(
+                action='poscall',
+                position=str(position),
+            )
+        except ClientError as e:
+            raise ServerError(message=e.message)
         return data
 
     @staticmethod

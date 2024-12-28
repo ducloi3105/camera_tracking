@@ -22,14 +22,14 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
                 port=DCERNO_CONFIG['port'],
                 timeout=5
             )
-        except Exception as e:
-            raise BadRequestParams(message='Could not connect to televic')
+        except ClientError as e:
+            raise BadRequestParams(message=e.message)
         try:
             data = client.get_microphone_status(uid)
             if not data:
                 raise BadRequestParams(message='microphone not found')
-        except Exception as e:
-            raise BadRequestParams(message='microphone not found')
+        except ClientError as e:
+            raise BadRequestParams(message=e.message)
 
         vhd_client = VHDClient(
             uri=VHD_CONFIG['uri'],
@@ -43,7 +43,7 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             next_number = micros[uid]
         else:
             next_number = self.find_next_number(micros)
-
+        client.socket.close()
         micros[uid] = next_number
         try:
             data = vhd_client.call(
@@ -51,7 +51,7 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
                 position=str(next_number),
             )
         except ClientError as e:
-            raise BadRequestParams(message='Cannot preset camera')
+            raise BadRequestParams(message=e.message)
         if not data or data['Response']['Result'] != 'Success':
             raise BadRequestParams(message='Cannot Preset Camera')
 

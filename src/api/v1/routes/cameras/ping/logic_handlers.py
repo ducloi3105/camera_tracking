@@ -1,5 +1,6 @@
 from src.bases.api.routes import RouteLogicHandler
 from src.clients.vhd import VHDClient
+from src.bases.error.client import ClientError
 from config import VHD_CONFIG
 
 
@@ -14,6 +15,6 @@ class CameraPingLogicHandler(RouteLogicHandler):
         try:
             res = client.ping()
             pong = True
-        except Exception as e:
+        except ClientError as e:
             print(e)
         return dict(success=pong, data=str(res))
