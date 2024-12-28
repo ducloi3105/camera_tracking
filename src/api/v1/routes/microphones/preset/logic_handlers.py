@@ -3,15 +3,10 @@ from src.clients.dcerno import DcernoClient
 from src.clients.vhd import VHDClient
 from src.bases.error.api import BadRequestParams
 from src.bases.error.client import ClientError
-from config import DCERNO_CONFIG, VHD_CONFIG
+from config import DCERNO_CONFIG, VHD_CONFIG, DECERNO_VHD_MAPPING_PATH
 from pathlib import Path
 import os
 import json
-
-config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_camera_config.json')
-if not os.path.exists(config_path):
-    with open(config_path, 'w') as f:
-        json.dump({}, f)
 
 
 class MicrophonePresetLogicHandler(RouteLogicHandler):
@@ -36,7 +31,7 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             logger=self.logger
         )
         micros = self.read()
-        if micros:
+        if not micros:
             micros = {}
 
         if uid in micros:
@@ -44,7 +39,7 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
         else:
             next_number = self.find_next_number(micros)
         client.socket.close()
-        micros[uid] = next_number
+        micros[uid] = str(next_number)
         try:
             data = vhd_client.call(
                 action='posset',
@@ -54,32 +49,24 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             raise BadRequestParams(message=e.message)
         if not data or data['Response']['Result'] != 'Success':
             raise BadRequestParams(message='Cannot Preset Camera')
-
         self.write(micros)
 
         return dict(success=True)
 
     @staticmethod
     def read():
-        return json.load(open(config_path, 'r'))
+        if not os.path.exists(DECERNO_VHD_MAPPING_PATH):
+            with open(DECERNO_VHD_MAPPING_PATH, 'w') as f:
+                json.dump({}, f)
+        return json.load(open(DECERNO_VHD_MAPPING_PATH, 'r'))
 
     @staticmethod
     def write(data):
-        with open(config_path, 'w') as f:
+        with open(DECERNO_VHD_MAPPING_PATH, 'w') as f:
             json.dump(data, f)
 
     @staticmethod
     def find_next_number(data):
-        """
-        Tìm giá trị số tiếp theo còn trống trong khoảng từ min đến max.
-
-        Args:
-            data (dict): Dictionary chứa các giá trị dạng số dưới dạng string.
-
-        Returns:
-            int: Số tiếp theo còn trống.
-        """
-        # Lấy danh sách các số hiện có và chuyển thành tập hợp số nguyên
         if not data:
             return 10
         current_numbers = {int(value) for value in data.values()}

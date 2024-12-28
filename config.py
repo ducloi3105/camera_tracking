@@ -1,5 +1,7 @@
 import yaml
 import os
+from pathlib import Path
+import json
 
 ROOT_PATH = os.path.dirname(__file__)
 
@@ -39,6 +41,15 @@ VHD_CONFIG = data.get(
         uri='http://192.168.0.88'
     )
 )
+
+DECERNO_VHD_MAPPING_PATH = data.get(
+    'DECERNO_VHD_MAPPING_PATH',
+    os.path.join(Path.home() / 'Documents', 'decerno_vhd_camera_config.json')
+)
+
+DECERNO_VHD_SETTING_PATH = data.get(
+    'DECERNO_VHD_SETTING_PATH',
+    os.path.join(Path.home() / 'Documents', 'decerno_vhd_settings.json'))
 
 
 class CeleryConfig(object):

@@ -2,11 +2,7 @@ from src.bases.api.routes import RouteLogicHandler
 from pathlib import Path
 import os
 import json
-
-config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_settings.json')
-if not os.path.exists(config_path):
-    with open(config_path, 'w') as f:
-        json.dump({}, f)
+from config import DECERNO_VHD_SETTING_PATH
 
 
 class MicrophoneTrackingLogicHandler(RouteLogicHandler):
@@ -19,9 +15,12 @@ class MicrophoneTrackingLogicHandler(RouteLogicHandler):
 
     @staticmethod
     def read():
-        return json.load(open(config_path, 'r'))
+        if not os.path.exists(DECERNO_VHD_SETTING_PATH):
+            with open(DECERNO_VHD_SETTING_PATH, 'w') as f:
+                json.dump({}, f)
+        return json.load(open(DECERNO_VHD_SETTING_PATH, 'r'))
 
     @staticmethod
     def write(data):
-        with open(config_path, 'w') as f:
+        with open(DECERNO_VHD_SETTING_PATH, 'w') as f:
             json.dump(data, f)

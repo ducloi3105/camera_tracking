@@ -7,24 +7,30 @@ import logging
 from src.clients.dcerno import DcernoClient
 from src.clients.vhd import VHDClient
 from src.bases.error.client import ClientError
-from config import DCERNO_CONFIG, VHD_CONFIG
+from config import DCERNO_CONFIG, VHD_CONFIG, DECERNO_VHD_SETTING_PATH, DECERNO_VHD_MAPPING_PATH
 
 logger = logging.getLogger()
 
 
 def run():
-    dcerno_config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_config.json')
-    setting_config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_settings.json')
     micro_active = None
     vhd_client = VHDClient(uri=VHD_CONFIG['uri'], logger=logger)
     while True:
         time.sleep(1)
-        settings = json.load(open(setting_config_path, 'r')) or {}
+        print('====CHECKING camera=====')
+        if not os.path.exists(DECERNO_VHD_SETTING_PATH):
+            with open(DECERNO_VHD_SETTING_PATH, 'w') as f:
+                json.dump({}, f)
+        settings = json.load(open(DECERNO_VHD_SETTING_PATH, 'r')) or {}
         if not settings.get('tracking_enabled'):
             continue
 
-        micro_settings = json.load(open(dcerno_config_path, 'r')) or {}
-        if not micro_settings:
+        if not os.path.exists(DECERNO_VHD_MAPPING_PATH):
+            with open(DECERNO_VHD_MAPPING_PATH, 'w') as f:
+                json.dump({}, f)
+
+        dcerno_mapping = json.load(open(DECERNO_VHD_MAPPING_PATH, 'r')) or {}
+        if not dcerno_mapping:
             continue
 
         try:
@@ -49,10 +55,10 @@ def run():
         if active_mic != micro_active:
             micro_active = active_mic
 
-        position = micro_settings.get(micro_active)
+        position = dcerno_mapping.get(micro_active)
         if not position:
             continue
-
+        print(f'set {active_mic} active')
         try:
             vhd_client.call(
                 action='poscall',

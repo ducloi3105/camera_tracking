@@ -11,7 +11,7 @@ class DcernoClient():
 
     def __init__(self, host, port, timeout=10):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(20)
+        s.settimeout(timeout)
         try:
             s.connect((host, port))
         except Exception as e:
