@@ -62,8 +62,6 @@ def run():
                 position=str(position),
             )
     except Exception as e:
-        if client and client.socket:
-            client.socket.close()
         print('Retry connection', e)
         time.sleep(10)
 

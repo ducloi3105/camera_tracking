@@ -15,7 +15,6 @@ class MicrophonesPingLogicHandler(RouteLogicHandler):
             )
             if client.socket:
                 ping = True
-                client.socket.close()
         except ClientError as e:
             print(e)
 

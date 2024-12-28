@@ -38,7 +38,6 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             next_number = micros[uid]
         else:
             next_number = self.find_next_number(micros)
-        client.socket.close()
         micros[uid] = str(next_number)
         try:
             data = vhd_client.call(

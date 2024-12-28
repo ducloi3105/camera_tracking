@@ -126,4 +126,3 @@ if __name__ == "__main__":
     for unit in units['s']:
         unit_info = d.get_microphone_status(unit['uid'])  # get status for all mics
         print(unit_info)
-    d.socket.close()

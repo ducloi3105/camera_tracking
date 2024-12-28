@@ -18,7 +18,6 @@ class MicrophoneCallLogicHandler(RouteLogicHandler):
                 timeout=5
             )
             micro = client.get_microphone_status(uid)
-            client.socket.close()
         except ClientError as e:
             raise ServerError(message=e.message)
 
