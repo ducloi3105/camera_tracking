@@ -33,10 +33,10 @@ class DcernoClient():
         # Send the packet
         try:
             s.sendall(connect_packet.encode('ascii'))
+            reply = s.recv(1024).decode('ascii')
         except Exception as e:
             raise ClientError(message='Cannot send connect packet', meta=str(e))
         # Receive and handle the reply
-        reply = s.recv(1024).decode('ascii')
 
         # Process the reply
         if reply and "rep" in reply:

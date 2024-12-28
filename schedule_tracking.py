@@ -43,6 +43,9 @@ def run():
             if micro.get('stat') == '1':
                 active_mic = micro['uid']
                 break
+        if not active_mic:
+            micro_active = None
+            continue
         if active_mic != micro_active:
             micro_active = active_mic
 
