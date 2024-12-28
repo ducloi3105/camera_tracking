@@ -2,6 +2,7 @@ import socket
 import json
 import re
 import datetime
+from cachetools import cached, LRUCache
 
 from src.bases.error.client import ClientError
 
@@ -9,6 +10,7 @@ from src.bases.error.client import ClientError
 class DcernoClient():
     socket = None
 
+    @cached(cache=LRUCache(maxsize=128))
     def __init__(self, host, port, timeout=10):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(timeout)
