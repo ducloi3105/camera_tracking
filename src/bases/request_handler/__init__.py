@@ -45,8 +45,7 @@ class RequestHandler(object):
     def __init__(self, logger: logging.Logger = None):
         self.logger = logger
 
-    @request_connection_handler(max_retry=2)
-    def _do_request(self, method, url, timeout=5000, **kwargs):
+    def _do_request(self, method, url, timeout=10000, **kwargs):
         method_handler = getattr(requests, method, None)
         if not method_handler:
             raise Exception('UnsupportedMethod')

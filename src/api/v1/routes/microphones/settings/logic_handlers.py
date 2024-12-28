@@ -1,8 +1,4 @@
 from src.bases.api.routes import RouteLogicHandler
-from src.clients.dcerno import DcernoClient
-from src.clients.vhd import VHDClient
-from src.bases.error.api import BadRequestParams
-from config import DCERNO_CONFIG, VHD_CONFIG
 from pathlib import Path
 import os
 import json

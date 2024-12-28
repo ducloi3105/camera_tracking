@@ -9,5 +9,11 @@ class CameraPingLogicHandler(RouteLogicHandler):
             uri=VHD_CONFIG['uri'],
             logger=self.logger
         )
-        res = client.ping()
-        return res
+        pong = False
+        res = {}
+        try:
+            res = client.ping()
+            pong = True
+        except Exception as e:
+            print(e)
+        return dict(success=pong, data=str(res))

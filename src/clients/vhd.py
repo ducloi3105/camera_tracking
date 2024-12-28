@@ -47,6 +47,6 @@ class VHDClient(Client):
         if response.status_code != 200:
             raise ClientError(message='Get device error: error code: ' + str(response.status_code))
         try:
-            return response.json()
+            return response.text
         except Exception as e:
             raise ClientError(e.args)
