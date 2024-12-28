@@ -2,25 +2,33 @@ from src.bases.api.routes import RouteLogicHandler
 from src.clients.dcerno import DcernoClient
 from src.clients.vhd import VHDClient
 from src.bases.error.api import BadRequestParams
+from src.bases.error.client import ClientError
 from config import DCERNO_CONFIG, VHD_CONFIG
 from pathlib import Path
 import os
 import json
 
-config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_config.json')
+config_path = os.path.join(Path.home() / 'Documents', 'decerno_vhd_camera_config.json')
 if not os.path.exists(config_path):
     with open(config_path, 'w') as f:
         json.dump({}, f)
 
 
 class MicrophonePresetLogicHandler(RouteLogicHandler):
-    def run(self, uid):
-        client = DcernoClient(
-            host=DCERNO_CONFIG['host'],
-            port=DCERNO_CONFIG['port']
-        )
-        data = client.get_microphone_status(uid)
-        if not data:
+    def run(self, uid: str):
+        try:
+            client = DcernoClient(
+                host=DCERNO_CONFIG['host'],
+                port=DCERNO_CONFIG['port'],
+                timeout=5
+            )
+        except Exception as e:
+            raise BadRequestParams(message='Could not connect to televic')
+        try:
+            data = client.get_microphone_status(uid)
+            if not data:
+                raise BadRequestParams(message='microphone not found')
+        except Exception as e:
             raise BadRequestParams(message='microphone not found')
 
         vhd_client = VHDClient(
@@ -37,10 +45,13 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             next_number = self.find_next_number(micros)
 
         micros[uid] = next_number
-        data = vhd_client.call(
-            action='posset',
-            position=str(next_number),
-        )
+        try:
+            data = vhd_client.call(
+                action='posset',
+                position=str(next_number),
+            )
+        except ClientError as e:
+            raise BadRequestParams(message='Cannot preset camera')
         if not data or data['Response']['Result'] != 'Success':
             raise BadRequestParams(message='Cannot Preset Camera')
 

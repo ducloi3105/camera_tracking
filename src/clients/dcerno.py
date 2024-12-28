@@ -3,45 +3,46 @@ import json
 import re
 import datetime
 
-from src.bases.error.api import ServerError
+from src.bases.error.client import ClientError
 
 
 class DcernoClient():
-    def __init__(self, host, port):
+    socket = None
+
+    def __init__(self, host, port, timeout=10):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.settimeout(20)
-        s.connect((host, port))
-        print(f"Connected to {host}:{port}")
+        try:
+            s.connect((host, port))
+        except Exception as e:
+            raise ClientError(message='Cannot connect microphone', meta=str(e))
 
-        # Create a connect packet (con)
-        current_time = datetime.datetime.now().isoformat()
         connect_body = {
             "typ": "Application",
             "nam": "DU",
             "ver": "1.01",
             "inf": "",
             "svr": 0,
-            "tim": current_time
+            "tim": datetime.datetime.now().isoformat()
         }
 
         # Convert the body to JSON format
         json_body = json.dumps(connect_body)
         connect_packet = self.mapping_payload('con', '0001', '02', json_body)
-        print(f"Sending connect packet: {connect_packet}")
 
         # Send the packet
-        s.sendall(connect_packet.encode('ascii'))
-
+        try:
+            s.sendall(connect_packet.encode('ascii'))
+        except Exception as e:
+            raise ClientError(message='Cannot send connect packet', meta=str(e))
         # Receive and handle the reply
         reply = s.recv(1024).decode('ascii')
-        print(f"Received reply: {reply}")
 
         # Process the reply
         if reply and "rep" in reply:
-            print("Connection established successfully")
             self.socket = s
         else:
-            raise ServerError("Connection established successfully")
+            raise ClientError("Connection established successfully", meta=reply)
 
     @staticmethod
     def mapping_payload(packet_type, packet_id, body_format_type, body):
@@ -87,9 +88,9 @@ class DcernoClient():
                     json_data = re.search(r'{.*}', reply, re.DOTALL).group()
                     parsed_data = json.loads(json_data)
                     return parsed_data
-            print("Error retrieving all units.")
+            raise ClientError(message="Error retrieving all units.")
         except Exception as e:
-            print(f"Error retrieving all units: {e}")
+            raise ClientError(message=f"Error retrieving all units: {e}")
 
     def get_microphone_status(self, uid='0'):
         """Retrieves the microphone status from the D-Cerno system."""
@@ -114,10 +115,9 @@ class DcernoClient():
                 json_data = re.search(r'{.*}', reply, re.DOTALL).group()
                 parsed_data = json.loads(json_data)
                 return parsed_data
-            print("Error retrieving microphone status.")
+            raise ClientError(message="Error retrieving microphone status.")
         except Exception as e:
-            print(f"Error retrieving microphone status: {e}")
-        return None
+            raise ClientError(message=f"Error retrieving microphone status: {e}")
 
 
 if __name__ == "__main__":

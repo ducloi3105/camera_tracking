@@ -28,7 +28,24 @@ class VHDClient(Client):
             raise ClientError(e.args)
 
         if response.status_code != 200:
-            raise ClientError('SetCamFailed: error code: ' + str(response.status_code))
+            raise ClientError(message='SetCamFailed: error code: ' + str(response.status_code))
+        try:
+            return response.json()
+        except Exception as e:
+            raise ClientError(e.args)
+
+    def ping(self):
+        url = self.uri + f'/cgi-bin/param.cgi?get_device_conf'
+        try:
+            response = self._do_request(
+                method='get',
+                url=url,
+            )
+        except Exception as e:
+            raise ClientError(e.args)
+
+        if response.status_code != 200:
+            raise ClientError(message='Get device error: error code: ' + str(response.status_code))
         try:
             return response.json()
         except Exception as e:

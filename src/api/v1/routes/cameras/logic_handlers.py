@@ -8,7 +8,8 @@ from config import VHD_CONFIG
 class CamerasLogicHandler(RouteLogicHandler):
     def run(self):
         client = VHDClient(
-            uri=VHD_CONFIG['uri']
+            uri=VHD_CONFIG['uri'],
+            logger=self.logger
         )
 
         data = client.call(
