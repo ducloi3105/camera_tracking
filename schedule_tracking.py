@@ -13,15 +13,16 @@ logger = logging.getLogger()
 
 
 def run():
-    micro_active = None
     vhd_client = VHDClient(uri=VHD_CONFIG['uri'], logger=logger)
-    client = None
+
     try:
         client = DcernoClient(
             host=DCERNO_CONFIG['host'],
             port=DCERNO_CONFIG['port'],
             timeout=5
         )
+        current_active_micro = 'home'
+
         while True:
             time.sleep(1)
             print('====CHECKING camera=====')
@@ -42,21 +43,29 @@ def run():
 
             data = client.get_all_units()
 
-            active_mic = None
+            active_micros = []
             for micro in data['s']:
                 if micro.get('stat') == '1':
-                    active_mic = micro['uid']
-                    break
-            if not active_mic:
-                micro_active = None
+                    active_micros.append(micro['uid'])
+            if not active_micros:
+                if current_active_micro != 'home':
+                    vhd_client.call(
+                        action='home',
+                        position='10',
+                        zoom='10',
+                    )
+                    current_active_micro = 'home'
                 continue
-            if active_mic != micro_active:
-                micro_active = active_mic
 
-            position = dcerno_mapping.get(micro_active)
+            if current_active_micro in active_micros:
+                continue
+            else:
+                current_active_micro = active_micros[0]
+
+            position = dcerno_mapping.get(current_active_micro)
             if not position:
                 continue
-            print(f'set {active_mic} active')
+            print(f'set {current_active_micro} active')
             vhd_client.call(
                 action='poscall',
                 position=str(position),
