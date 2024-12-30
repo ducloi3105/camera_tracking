@@ -13,6 +13,7 @@ class DcernoClient():
     def __init__(self, host, port, timeout=10):
         self.host = host
         self.port = port
+        self.timeout = timeout
 
     @staticmethod
     def mapping_payload(packet_type, packet_id, body_format_type, body):
