@@ -15,12 +15,12 @@ logger = logging.getLogger()
 def run():
     vhd_client = VHDClient(uri=VHD_CONFIG['uri'], logger=logger)
 
-    client = DcernoClient(
-        host=DCERNO_CONFIG['host'],
-        port=DCERNO_CONFIG['port'],
-        timeout=5
-    )
     try:
+        client = DcernoClient(
+            host=DCERNO_CONFIG['host'],
+            port=DCERNO_CONFIG['port'],
+            timeout=5
+        )
         current_active_micro = 'home'
 
         while True:
