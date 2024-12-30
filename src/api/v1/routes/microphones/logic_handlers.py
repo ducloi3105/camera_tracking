@@ -8,11 +8,11 @@ from src.bases.error.client import ClientError
 
 class MicrophoneLogicHandler(RouteLogicHandler):
     def run(self):
+        client = DcernoClient(
+            host=DCERNO_CONFIG['host'],
+            port=DCERNO_CONFIG['port']
+        )
         try:
-            client = DcernoClient(
-                host=DCERNO_CONFIG['host'],
-                port=DCERNO_CONFIG['port']
-            )
             data = client.get_all_units()
         except ClientError as e:
             raise BadRequestParams(message=e.message)

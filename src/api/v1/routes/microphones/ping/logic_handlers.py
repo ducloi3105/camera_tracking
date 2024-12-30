@@ -7,13 +7,13 @@ from config import DCERNO_CONFIG
 class MicrophonesPingLogicHandler(RouteLogicHandler):
     def run(self):
         ping = False
+        client = DcernoClient(
+            host=DCERNO_CONFIG['host'],
+            port=DCERNO_CONFIG['port'],
+            timeout=2
+        )
         try:
-            client = DcernoClient(
-                host=DCERNO_CONFIG['host'],
-                port=DCERNO_CONFIG['port'],
-                timeout=2
-            )
-            if client.socket:
+            if client.connect():
                 ping = True
         except ClientError as e:
             print(e)

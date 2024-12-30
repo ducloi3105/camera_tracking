@@ -11,14 +11,11 @@ import json
 
 class MicrophonePresetLogicHandler(RouteLogicHandler):
     def run(self, uid: str):
-        try:
-            client = DcernoClient(
-                host=DCERNO_CONFIG['host'],
-                port=DCERNO_CONFIG['port'],
-                timeout=5
-            )
-        except ClientError as e:
-            raise BadRequestParams(message=e.message)
+        client = DcernoClient(
+            host=DCERNO_CONFIG['host'],
+            port=DCERNO_CONFIG['port'],
+            timeout=5
+        )
         try:
             data = client.get_microphone_status(uid)
             if not data:
