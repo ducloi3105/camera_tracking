@@ -13,7 +13,7 @@ class MicrophonesPingLogicHandler(RouteLogicHandler):
             timeout=2
         )
         try:
-            if client.connect():
+            if client.socket_manager.socket:
                 ping = True
         except ClientError as e:
             print(e)

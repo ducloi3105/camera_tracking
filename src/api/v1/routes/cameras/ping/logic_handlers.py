@@ -6,15 +6,16 @@ from config import VHD_CONFIG
 
 class CameraPingLogicHandler(RouteLogicHandler):
     def run(self):
-        client = VHDClient(
-            uri=VHD_CONFIG['uri'],
-            logger=self.logger
-        )
         pong = False
-        res = {}
         try:
+            client = VHDClient(
+                uri=VHD_CONFIG['uri'],
+                logger=self.logger
+            )
             res = client.ping()
             pong = True
-        except ClientError as e:
-            print(e)
-        return dict(success=pong, data=str(res))
+        except Exception as e:
+            pass
+        return {
+            'success': pong
+        }
