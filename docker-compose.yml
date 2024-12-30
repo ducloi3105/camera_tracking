@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB_NAME=camera_tracking
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=813417
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - .:/app
+    command: poetry run uvicorn src.api:app --host 0.0.0.0 --port 5000 --reload
+
+  schedule_tracking:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    environment:
+      - ENVIRONMENT=development
+      - DEBUG=true
+      - MONGO_URI=mongodb://mongodb:27017
+      - MONGO_DB_NAME=camera_tracking
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=813417
+    depends_on:
+      - mongodb
+      - redis
+    volumes:
+      - .:/app
+    command: poetry run python schedule_tracking.py
+  mongodb:
+    image: mongo:latest
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+    command: redis-server --requirepass 813417
+    volumes:
+      - redis_data:/data
+
+volumes:
+  mongodb_data:
+  redis_data: 
