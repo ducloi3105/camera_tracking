@@ -7,12 +7,12 @@ from src.bases.error.client import ClientError
 
 class MicrophoneDetailsLogicHandler(RouteLogicHandler):
     def run(self, uid: str):
+        client = DcernoClient(
+            host=DCERNO_CONFIG['host'],
+            port=DCERNO_CONFIG['port'],
+            timeout=5
+        )
         try:
-            client = DcernoClient(
-                host=DCERNO_CONFIG['host'],
-                port=DCERNO_CONFIG['port'],
-                timeout=5
-            )
             data = client.get_microphone_status(uid) or {}
         except ClientError as e:
             raise ServerError(message=e.message)
