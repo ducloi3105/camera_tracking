@@ -80,7 +80,7 @@ class DcernoClient():
                 "svr": 0
             }
             json_body = json.dumps(disconnect_body)
-            disconnect_packet = create_tccp_packet('dis', '0004', '02', json_body)  # packet ID is 0003
+            disconnect_packet = self.mapping_payload('dis', '0004', '02', json_body)  # packet ID is 0003
             print(f"Sending disconnect packet: {disconnect_packet}")
             # Send the disconnect packet
             socket.sendall(disconnect_packet.encode('ascii'))
