@@ -24,3 +24,22 @@ class MicrophoneTrackingLogicHandler(RouteLogicHandler):
     def write(data):
         with open(DECERNO_VHD_SETTING_PATH, 'w') as f:
             json.dump(data, f)
+
+
+class GetMicrophoneTrackingLogicHandler(RouteLogicHandler):
+    def run(self):
+        return self.read() or {
+            'tracking_enabled': False
+        }
+
+    @staticmethod
+    def read():
+        if not os.path.exists(DECERNO_VHD_SETTING_PATH):
+            with open(DECERNO_VHD_SETTING_PATH, 'w') as f:
+                json.dump({}, f)
+        return json.load(open(DECERNO_VHD_SETTING_PATH, 'r'))
+
+    @staticmethod
+    def write(data):
+        with open(DECERNO_VHD_SETTING_PATH, 'w') as f:
+            json.dump(data, f)
