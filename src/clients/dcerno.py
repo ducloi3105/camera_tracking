@@ -37,8 +37,8 @@ class DcernoClient():
 
     def connect(self):
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.settimeout(self.timeout)
         try:
+            s.settimeout(self.timeout)
             s.connect((self.host, self.port))
         except Exception as e:
             raise ClientError(message='Cannot connect microphone', meta=str(e))
@@ -84,6 +84,7 @@ class DcernoClient():
             print(f"Sending disconnect packet: {disconnect_packet}")
             # Send the disconnect packet
             socket.sendall(disconnect_packet.encode('ascii'))
+            socket.close()
 
             print("Disconnected from D-Cerno system.")
         except Exception as e:
