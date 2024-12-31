@@ -20,6 +20,8 @@ services:
       - redis
     volumes:
       - .:/app
+      - ${HOME}/Documents:/root/Documents
+      - ./env.yaml:/app/env.yaml
     command: poetry run uvicorn src.api:app --host 0.0.0.0 --port 5000 --reload
 
   schedule_tracking:
@@ -39,7 +41,10 @@ services:
       - redis
     volumes:
       - .:/app
+      - ${HOME}/Documents:/root/Documents
+      - ./env.yaml:/app/env.yaml
     command: poetry run python schedule_tracking.py
+
   mongodb:
     image: mongo:latest
     ports:
