@@ -13,7 +13,6 @@ logger = logging.getLogger()
 
 
 def run():
-    vhd_client = VHDClient(uri=VHD_CONFIG['uri'], logger=logger)
 
     try:
         client = DcernoClient(
@@ -21,7 +20,10 @@ def run():
             port=DCERNO_CONFIG['port'],
             timeout=5
         )
-        current_active_micro = 'home'
+        ips = VHD_CONFIG['ips']
+        current_active_micros = {}
+        for ip in ips:
+            current_active_micros[ip] = {}
 
         while True:
             time.sleep(1)
@@ -30,8 +32,11 @@ def run():
                 with open(DECERNO_VHD_SETTING_PATH, 'w') as f:
                     json.dump({}, f)
             settings = json.load(open(DECERNO_VHD_SETTING_PATH, 'r')) or {}
-            if not settings.get('tracking_enabled'):
-                continue
+            tracking_enabled = {}
+            for ip, enable in settings.items():
+                if enable:
+                    tracking_enabled[ip] = enable
+                    current_active_micros[ip]['auto_tracking'] = True
 
             if not os.path.exists(DECERNO_VHD_MAPPING_PATH):
                 with open(DECERNO_VHD_MAPPING_PATH, 'w') as f:
@@ -40,36 +45,47 @@ def run():
             dcerno_mapping = json.load(open(DECERNO_VHD_MAPPING_PATH, 'r')) or {}
             if not dcerno_mapping:
                 continue
-
-            data = client.get_all_units()
-
-            active_micros = []
+            try:
+                data = client.get_all_units()
+            except:
+                continue
+            active_micros = {}
             for micro in data['s']:
                 if micro.get('stat') == '1':
-                    active_micros.append(micro['uid'])
-            if not active_micros:
-                if current_active_micro != 'home':
-                    vhd_client.call(
-                        action='home',
-                        position='10',
-                        zoom='10',
-                    )
-                    current_active_micro = 'home'
-                continue
+                    micro_id = micro['uid']
+                    m = dcerno_mapping.get(micro_id)
+                    if not m:
+                        continue
+                    active_micros[micro_id] = m
 
-            if current_active_micro in active_micros:
-                continue
-            else:
-                current_active_micro = active_micros[0]
-
-            position = dcerno_mapping.get(current_active_micro)
-            if not position:
-                continue
-            print(f'set {current_active_micro} active')
-            vhd_client.call(
-                action='poscall',
-                position=str(position),
-            )
+            for camera_ip, micro_info in current_active_micros.items():
+                if not micro_info.get('auto_tracking'):
+                    continue
+                active_micro_id = micro_info.get('micro_id')
+                if active_micro_id and active_micro_id not in active_micros:
+                    vhd_client = VHDClient(uri=camera_ip, logger=logger)
+                    try:
+                        vhd_client.call(
+                            action='home',
+                            position='10',
+                            zoom='10',
+                        )
+                    except:
+                        pass
+                    current_active_micros[camera_ip] = {}
+                else:
+                    for micro_id, active_micro in active_micros.items():
+                        if active_micro['camera_ip'] == camera_ip:
+                            position = active_micro['number']
+                            camera_ip = active_micro['camera_ip']
+                            print(f'set {current_active_micro} active')
+                            vhd_client = VHDClient(uri=camera_ip, logger=logger)
+                            vhd_client.call(
+                                action='poscall',
+                                position=str(position),
+                            )
+                            current_active_micros[camera_ip] = active_micro
+                            break
     except Exception as e:
         print('Retry connection', e)
         time.sleep(10)

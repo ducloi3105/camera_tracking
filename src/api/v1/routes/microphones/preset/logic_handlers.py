@@ -39,7 +39,8 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             next_number = self.find_next_number(micros)
         micros[uid] = dict(
             camera_ip=camera_ip,
-            number=next_number
+            number=next_number,
+            micro_id=uid
         )
         try:
             data = vhd_client.call(
