@@ -10,7 +10,7 @@ import json
 
 
 class MicrophonePresetLogicHandler(RouteLogicHandler):
-    def run(self, uid: str):
+    def run(self, uid: str, camera_ip: str):
         client = DcernoClient(
             host=DCERNO_CONFIG['host'],
             port=DCERNO_CONFIG['port'],
@@ -22,9 +22,11 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
                 raise BadRequestParams(message='microphone not found')
         except ClientError as e:
             raise BadRequestParams(message=e.message)
-
+        ips = VHD_CONFIG['ips']
+        if camera_ip not in ips:
+            raise BadRequestParams(message='camera not found')
         vhd_client = VHDClient(
-            uri=VHD_CONFIG['uri'],
+            uri=camera_ip,
             logger=self.logger
         )
         micros = self.read()
@@ -32,10 +34,13 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             micros = {}
 
         if uid in micros:
-            next_number = micros[uid]
+            next_number = micros[uid]['number']
         else:
             next_number = self.find_next_number(micros)
-        micros[uid] = str(next_number)
+        micros[uid] = dict(
+            camera_ip=camera_ip,
+            number=next_number
+        )
         try:
             data = vhd_client.call(
                 action='posset',
@@ -47,6 +52,10 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             raise BadRequestParams(message='Cannot Preset Camera')
         self.write(micros)
 
+        try:
+            client.get_all_units()
+        except:
+            pass
         return dict(success=True)
 
     @staticmethod
@@ -75,3 +84,26 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
         for number in range(min_number, max_number + 2):
             if number not in current_numbers:
                 return number
+
+class MicrophoneDeletePresetLogicHandler(RouteLogicHandler):
+    def run(self, uid: str):
+        micros = self.read()
+        if not micros:
+            micros = {}
+
+        micros.pop(uid, None)
+        self.write(micros)
+
+        return dict(success=True)
+
+    @staticmethod
+    def read():
+        if not os.path.exists(DECERNO_VHD_MAPPING_PATH):
+            with open(DECERNO_VHD_MAPPING_PATH, 'w') as f:
+                json.dump({}, f)
+        return json.load(open(DECERNO_VHD_MAPPING_PATH, 'r'))
+
+    @staticmethod
+    def write(data):
+        with open(DECERNO_VHD_MAPPING_PATH, 'w') as f:
+            json.dump(data, f)

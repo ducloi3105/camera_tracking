@@ -69,7 +69,7 @@ class SingletonSocket:
 
             try:
                 self.send(connect_packet)
-                reply = self.receive(1024)
+                reply = self.receive(10240)
                 if "rep" not in reply:
                     raise ClientError(message="Failed to establish connection.", meta=reply)
                 print("Connection established successfully.")
@@ -94,7 +94,7 @@ class SingletonSocket:
             self._connect()
             self.socket.sendall(data.encode('ascii'))
 
-    def receive(self, buffer_size=1024):
+    def receive(self, buffer_size=10240):
         """Receive data from the socket. Reconnect if needed."""
         try:
             if self.socket is None:
@@ -139,7 +139,7 @@ class DcernoClient:
 
         try:
             self.socket_manager.send(connect_packet)
-            reply = self.socket_manager.receive(1024)
+            reply = self.socket_manager.receive(10240)
             if "rep" not in reply:
                 raise ClientError(message="Failed to establish connection.", meta=reply)
             print("Connection established successfully.")
@@ -162,7 +162,7 @@ class DcernoClient:
             self.socket_manager.send(get_units_packet)
 
             # Receive and handle the reply
-            reply = self.socket_manager.receive(1024)
+            reply = self.socket_manager.receive(10240)
             print(f"Received reply: {reply}")
             if reply:
                 print("Successfully retrieved all units.")
@@ -227,13 +227,17 @@ class DcernoClient:
             self.socket_manager.send(get_mic_status_packet)
 
             # Receive and handle the reply
-            reply = self.socket_manager.receive(1024)
+            reply = self.socket_manager.receive(10240)
             print(f"Received reply: {reply}")
 
             if reply:
-                json_data = re.search(r'{.*}', reply, re.DOTALL).group()
-                parsed_data = json.loads(json_data)
-                return parsed_data
+                pattern = r':\{(.*)\}'
+                match = re.search(pattern, reply, re.DOTALL)
+                if match:
+                    json_data = '{' + match.group(1) + '}'
+                    parsed_data = json.loads(json_data)
+                    return parsed_data
+
             raise ClientError(message="Error retrieving microphone status.")
         except Exception as e:
             raise ClientError(message=f"Error retrieving microphone status: {e}")

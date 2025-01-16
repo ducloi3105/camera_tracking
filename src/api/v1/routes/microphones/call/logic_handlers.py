@@ -25,12 +25,13 @@ class MicrophoneCallLogicHandler(RouteLogicHandler):
             raise BadRequestParams(message='microphone not found')
 
         micros = self.read()
-        position = micros.get(uid)
-        if not position:
+        micro = micros.get(uid)
+        if not micro:
             raise BadRequestParams(message='Microphone not set preset')
-
+        position = micro['number']
+        ip = micro['camera_ip']
         vhd_client = VHDClient(
-            uri=VHD_CONFIG['uri'],
+            uri=ip,
             logger=self.logger
         )
         try:

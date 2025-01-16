@@ -18,14 +18,18 @@ class MicrophonesPingLogicHandler(RouteLogicHandler):
                 mic_ping = True
         except ClientError as e:
             pass
-        cam_ping = False
-        try:
-            client = VHDClient(
-                uri=VHD_CONFIG['uri'],
-                logger=self.logger
-            )
-            res = client.ping()
-            cam_ping = True
-        except Exception as e:
-            pass
-        return dict(mic_ping=mic_ping, cam_ping=cam_ping)
+        cam_pings = []
+        for ip in VHD_CONFIG['ips']:
+            p = False
+            try:
+                client = VHDClient(
+                    uri=ip,
+                    logger=self.logger
+                )
+                res = client.ping()
+                p = True
+            except Exception as e:
+                pass
+            cam_pings.append(dict(ip=ip, ping=p))
+
+        return dict(mic_ping=mic_ping, cam_pings=[{cam_pings}])

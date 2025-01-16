@@ -38,7 +38,9 @@ DCERNO_CONFIG = data.get(
 )
 VHD_CONFIG = data.get(
     'VHD_CONFIG', dict(
-        uri='http://192.168.0.88'
+        ips=[
+            'http://192.168.0.88'
+        ]
     )
 )
 

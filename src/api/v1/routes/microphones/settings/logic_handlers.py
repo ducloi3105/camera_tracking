@@ -6,9 +6,12 @@ from config import DECERNO_VHD_SETTING_PATH
 
 
 class MicrophoneTrackingLogicHandler(RouteLogicHandler):
-    def run(self, tracking_enabled: bool):
+    def run(self, tracking_enabled: bool, camera_ip: str):
         setting = self.read() or {}
-        setting['tracking_enabled'] = tracking_enabled
+        ips = VHD_CONFIG['ips']
+        if camera_ip not in ips:
+            raise BadRequestParams(message='camera not found')
+        setting[camera_ip] = tracking_enabled
         self.write(setting)
 
         return setting
@@ -28,9 +31,16 @@ class MicrophoneTrackingLogicHandler(RouteLogicHandler):
 
 class GetMicrophoneTrackingLogicHandler(RouteLogicHandler):
     def run(self):
-        return self.read() or {
-            'tracking_enabled': False
-        }
+        ips = VHD_CONFIG['ips']
+        tracking = self.read() or None
+        if not tracking:
+            tracking = {}
+            for ip in ips:
+                tracking[ip] = False
+        result = {}
+        for ip, enable in tracking.items():
+            tracking[ip] = enable
+        return result
 
     @staticmethod
     def read():

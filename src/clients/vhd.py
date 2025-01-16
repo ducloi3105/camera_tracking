@@ -5,7 +5,7 @@ from src.bases.error.client import ClientError
 
 class VHDClient(Client):
     def __init__(self, uri, logger):
-        self.uri = uri
+        self.uri = f'http://{uri}'
         self.logger = logger
 
         super().__init__(logger=logger)
