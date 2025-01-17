@@ -39,7 +39,7 @@ class GetMicrophoneTrackingLogicHandler(RouteLogicHandler):
                 tracking[ip] = False
         result = {}
         for ip, enable in tracking.items():
-            tracking[ip] = enable
+            result[ip] = enable
         return result
 
     @staticmethod
