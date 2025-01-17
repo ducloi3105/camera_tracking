@@ -35,8 +35,9 @@ class VHDClient(Client):
                 return True
         except Exception as e:
             data = response.text
-            if isinstance(data, str) and 'success' in data:
+            if isinstance(data, str) and ('success' in data or data == ''):
                 return True
+        print(f"RESPONSE: {response.text}")
         raise ClientError(message="cannot set preset")
 
     def ping(self):
