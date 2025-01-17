@@ -60,17 +60,20 @@ def run():
 
             for camera_ip, micro_info in current_active_micros.items():
                 active_micro_id = micro_info.get('micro_id')
-                if active_micro_id and active_micro_id not in active_micros:
-                    vhd_client = VHDClient(uri=camera_ip, logger=logger)
-                    try:
-                        vhd_client.call(
-                            action='home',
-                            position='10',
-                            zoom='10',
-                        )
-                    except:
-                        pass
-                    current_active_micros[camera_ip] = {}
+                if active_micro_id:
+                    if active_micro_id not in active_micros:
+                        vhd_client = VHDClient(uri=camera_ip, logger=logger)
+                        try:
+                            vhd_client.call(
+                                action='home',
+                                position='10',
+                                zoom='10',
+                            )
+                        except:
+                            pass
+                        current_active_micros[camera_ip] = {}
+                    else:
+                        continue
                 else:
                     if not micro_info.get('auto_tracking'):
                         continue
