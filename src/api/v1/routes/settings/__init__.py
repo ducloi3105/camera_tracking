@@ -4,7 +4,7 @@ from .logic_handlers import MicrophoneTrackingLogicHandler, GetMicrophoneTrackin
 
 class MicrophoneSettingsRoute(Route):
     auth = False
-    path = "/microphones/tracking"
+    path = "/tracking"
     method = "post"
 
     logic_handler_class = MicrophoneTrackingLogicHandler
@@ -12,7 +12,7 @@ class MicrophoneSettingsRoute(Route):
 
 class GetMicrophoneSettingsRoute(Route):
     auth = False
-    path = "/microphones/tracking"
+    path = "/tracking"
     method = "get"
 
     logic_handler_class = GetMicrophoneTrackingLogicHandler
