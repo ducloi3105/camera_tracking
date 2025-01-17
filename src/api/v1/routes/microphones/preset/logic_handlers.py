@@ -32,11 +32,15 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
         micros = self.read()
         if not micros:
             micros = {}
-
-        if uid in micros:
-            next_number = micros[uid]['number']
+        mapping = {}
+        if micros:
+            for mic_id, camera_info in micros.items():
+                if camera_ip == camera_info['camera_ip']:
+                    mapping[mic_id] = camera_info
+        if uid in mapping:
+            next_number = mapping[uid]['number']
         else:
-            next_number = self.find_next_number(micros)
+            next_number = self.find_next_number(mapping)
         micros[uid] = dict(
             camera_ip=camera_ip,
             number=next_number,
