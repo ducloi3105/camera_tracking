@@ -53,7 +53,8 @@ class MicrophonePresetLogicHandler(RouteLogicHandler):
             )
         except ClientError as e:
             raise BadRequestParams(message=e.message)
-        if not data or data['Response']['Result'] != 'Success':
+        if (not data or data['Response']['Result'] != 'Success' or
+                (isinstance(data, str) and 'success' not in data)):
             raise BadRequestParams(message='Cannot Preset Camera')
         self.write(micros)
 
