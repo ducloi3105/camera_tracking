@@ -20,7 +20,15 @@ class MicrophoneLogicHandler(RouteLogicHandler):
         mics = data['s']
         mapping = self.read()
         for mic in mics:
-            mic['preset'] = True if mapping.get(mic['uid']) else False
+            m = mapping.get(mic['uid'])
+            if m:
+                mic['preset'] = True
+                mic['number'] = m['number']
+                mic['camera_ip'] = m['camera_ip']
+            else:
+                mic['preset'] = False
+                mic['number'] = None
+                mic['camera_ip'] = None
         return dict(micros=data['s'])
 
     @staticmethod
