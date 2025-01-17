@@ -2,7 +2,8 @@ from src.bases.api.routes import RouteLogicHandler
 from pathlib import Path
 import os
 import json
-from config import DECERNO_VHD_SETTING_PATH
+from config import DECERNO_VHD_SETTING_PATH, VHD_CONFIG
+from src.bases.error.api import BadRequestParams
 
 
 class MicrophoneTrackingLogicHandler(RouteLogicHandler):
