@@ -30,9 +30,14 @@ class VHDClient(Client):
         if response.status_code != 200:
             raise ClientError(message='SetCamFailed: error code: ' + str(response.status_code))
         try:
-            return response.json()
+            data = response.json()
+            if not data or data['Response']['Result'] != 'Success':
+                return True
         except Exception as e:
-            raise ClientError(e.args)
+            data = response.text
+            if isinstance(data, str) and 'success' in data:
+                return True
+        raise ClientError(message="cannot set preset")
 
     def ping(self):
         url = self.uri + f'/cgi-bin/param.cgi?get_device_conf'
