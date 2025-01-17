@@ -40,6 +40,7 @@ class VHDClient(Client):
             response = self._do_request(
                 method='get',
                 url=url,
+                timeout=3
             )
         except Exception as e:
             raise ClientError(e.args)

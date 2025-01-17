@@ -32,4 +32,4 @@ class MicrophonesPingLogicHandler(RouteLogicHandler):
                 pass
             cam_pings.append(dict(ip=ip, ping=p))
 
-        return dict(mic_ping=mic_ping, cam_pings=[{cam_pings}])
+        return dict(mic_ping=mic_ping, cam_pings=cam_pings)
