@@ -5,7 +5,7 @@ import datetime
 from cachetools import cached, LRUCache
 from threading import Lock
 from src.bases.error.client import ClientError
-
+from config import DEFAULT_BYTE
 
 class SingletonSocket:
     """A thread-safe Singleton implementation for managing a single socket connection."""
@@ -69,7 +69,7 @@ class SingletonSocket:
 
             try:
                 self.send(connect_packet)
-                reply = self.receive(10240)
+                reply = self.receive(DEFAULT_BYTE)
                 if "rep" not in reply:
                     raise ClientError(message="Failed to establish connection.", meta=reply)
                 print("Connection established successfully.")
@@ -94,7 +94,7 @@ class SingletonSocket:
             self._connect()
             self.socket.sendall(data.encode('ascii'))
 
-    def receive(self, buffer_size=10240):
+    def receive(self, buffer_size=DEFAULT_BYTE):
         """Receive data from the socket. Reconnect if needed."""
         try:
             if self.socket is None:
@@ -139,7 +139,7 @@ class DcernoClient:
 
         try:
             self.socket_manager.send(connect_packet)
-            reply = self.socket_manager.receive(10240)
+            reply = self.socket_manager.receive(DEFAULT_BYTE)
             if "rep" not in reply:
                 raise ClientError(message="Failed to establish connection.", meta=reply)
             print("Connection established successfully.")
@@ -162,7 +162,7 @@ class DcernoClient:
             self.socket_manager.send(get_units_packet)
 
             # Receive and handle the reply
-            reply = self.socket_manager.receive(10240)
+            reply = self.socket_manager.receive(DEFAULT_BYTE)
             print(f"Received reply: {reply}")
             if reply:
                 print("Successfully retrieved all units.")
@@ -227,7 +227,7 @@ class DcernoClient:
             self.socket_manager.send(get_mic_status_packet)
 
             # Receive and handle the reply
-            reply = self.socket_manager.receive(10240)
+            reply = self.socket_manager.receive(DEFAULT_BYTE)
             print(f"Received reply: {reply}")
 
             if reply:

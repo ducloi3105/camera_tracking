@@ -23,6 +23,7 @@ VERSION = data.get('VERSION', 'v1')
 MONGO_URI = data.get('MONGO_URI', 'mongodb://localhost:31279')
 MONGO_DB_NAME = data.get('MONGO_DB_NAME', 'camera_tracking')
 SENTRY_DNS = data.get('SENTRY_DNS', '')
+DEFAULT_BYTE = data.get('DEFAULT_BYTE', 20480)
 
 REDIS = data.get('REDIS', dict(
     password='813417',
