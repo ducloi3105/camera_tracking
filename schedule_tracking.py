@@ -26,7 +26,7 @@ def run():
             current_active_micros[ip] = {}
 
         while True:
-            time.sleep(1)
+            time.sleep(0.5)
             print('====CHECKING camera=====')
             if not os.path.exists(DECERNO_VHD_SETTING_PATH):
                 with open(DECERNO_VHD_SETTING_PATH, 'w') as f:
@@ -57,11 +57,12 @@ def run():
                     if not m:
                         continue
                     active_micros[micro_id] = m
-
+            print('active_micros', active_micros)
             for camera_ip, micro_info in current_active_micros.items():
                 active_micro_id = micro_info.get('micro_id')
                 if active_micro_id:
                     if active_micro_id not in active_micros:
+                        print('vao home', camera_ip)
                         vhd_client = VHDClient(uri=camera_ip, logger=logger)
                         try:
                             vhd_client.call(
@@ -79,14 +80,19 @@ def run():
                         continue
                     for micro_id, active_micro in active_micros.items():
                         if active_micro['camera_ip'] == camera_ip:
+                            print('vao home', camera_ip)
                             position = active_micro['number']
                             camera_ip = active_micro['camera_ip']
-                            print(f'set {current_active_micro} active')
                             vhd_client = VHDClient(uri=camera_ip, logger=logger)
-                            vhd_client.call(
-                                action='poscall',
-                                position=str(position),
-                            )
+                            try:
+                                x = time.time()
+                                vhd_client.call(
+                                    action='poscall',
+                                    position=str(position),
+                                )
+                                print('set tracking', time.time() - x)
+                            except:
+                                pass
                             current_active_micros[camera_ip] = active_micro
                             break
     except Exception as e:
