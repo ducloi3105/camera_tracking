@@ -31,7 +31,7 @@ class VHDClient(Client):
             raise ClientError(message='SetCamFailed: error code: ' + str(response.status_code))
         try:
             data = response.json()
-            if not data or data['Response']['Result'] != 'Success':
+            if data and data['Response']['Result'] == 'Success':
                 return True
         except Exception as e:
             data = response.text
